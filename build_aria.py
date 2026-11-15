@@ -1511,6 +1511,171 @@ HTML_CONTENT = r'''<!DOCTYPE html>
       font-family: inherit;
       font-size: 10.5px;
     }
+
+    /* Scientific Data Provenance Banner in HUD */
+    .provenance-banner {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 9px;
+      border-radius: 4px;
+      background: rgba(0, 230, 118, 0.08);
+      border: 1px solid rgba(0, 230, 118, 0.35);
+      font-size: 8px;
+      letter-spacing: 0.08em;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      margin-top: 6px;
+      user-select: none;
+      width: fit-content;
+    }
+    .provenance-banner:hover {
+      background: rgba(0, 230, 118, 0.16);
+      border-color: rgba(0, 230, 118, 0.65);
+      box-shadow: 0 0 12px rgba(0, 230, 118, 0.28);
+    }
+    .provenance-banner .prov-badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #00E676;
+      box-shadow: 0 0 8px #00E676;
+      animation: pulse-dot 2s infinite ease-in-out;
+    }
+    .provenance-banner.badge-benchmark {
+      background: rgba(128, 216, 255, 0.08);
+      border-color: rgba(128, 216, 255, 0.35);
+    }
+    .provenance-banner.badge-benchmark:hover {
+      background: rgba(128, 216, 255, 0.16);
+      border-color: rgba(128, 216, 255, 0.65);
+      box-shadow: 0 0 12px rgba(128, 216, 255, 0.28);
+    }
+    .provenance-banner.badge-benchmark .prov-badge-dot {
+      background: #80D8FF;
+      box-shadow: 0 0 8px #80D8FF;
+    }
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.35; transform: scale(0.85); }
+    }
+
+    /* Scientific Data Transparency & Provenance Modal */
+    #data-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 4, 10, 0.82);
+      backdrop-filter: blur(14px);
+      z-index: 60;
+      display: none;
+      place-items: center;
+      padding: 20px;
+    }
+    #data-modal.open {
+      display: grid;
+    }
+    .data-matrix-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap: 12px;
+      margin-top: 10px;
+    }
+    .data-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--bd);
+      border-radius: 8px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      position: relative;
+      transition: all 0.25s ease;
+    }
+    .data-card:hover {
+      border-color: rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.05);
+    }
+    .dc-badge-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+    .dc-status-badge {
+      font-size: 8px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .badge-real {
+      background: rgba(0, 230, 118, 0.12);
+      color: #00E676;
+      border: 1px solid rgba(0, 230, 118, 0.4);
+    }
+    .badge-benchmark {
+      background: rgba(128, 216, 255, 0.12);
+      color: #80D8FF;
+      border: 1px solid rgba(128, 216, 255, 0.4);
+    }
+    .badge-simulated {
+      background: rgba(255, 183, 77, 0.12);
+      color: #FFB74D;
+      border: 1px solid rgba(255, 183, 77, 0.4);
+    }
+    .badge-unavailable {
+      background: rgba(255, 82, 82, 0.12);
+      color: #FF5252;
+      border: 1px solid rgba(255, 82, 82, 0.4);
+    }
+    .dc-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #FFFFFF;
+      letter-spacing: 0.04em;
+    }
+    .dc-provider {
+      font-size: 9px;
+      color: var(--t2);
+      letter-spacing: 0.08em;
+    }
+    .dc-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 8.5px;
+      margin-top: 4px;
+    }
+    .dc-table td {
+      padding: 3px 0;
+      vertical-align: top;
+    }
+    .dc-table td.dc-lbl {
+      color: var(--t3);
+      width: 32%;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+    }
+    .dc-table td.dc-val {
+      color: var(--tx);
+      font-family: var(--fn-mono);
+    }
+    .dc-table a {
+      color: var(--ac);
+      text-decoration: underline;
+    }
+    .dc-sonification {
+      background: rgba(0, 0, 0, 0.25);
+      border-left: 2px solid var(--ac);
+      padding: 6px 8px;
+      border-radius: 0 4px 4px 0;
+      font-size: 8px;
+      color: var(--t2);
+      line-height: 1.4;
+      margin-top: 4px;
+    }
     
     /* Intro Overlay */
     #intro {
@@ -1775,6 +1940,12 @@ HTML_CONTENT = r'''<!DOCTYPE html>
           REGIONS (18)
         </button>
 
+        <!-- Scientific Data Provenance & Transparency Modal Toggle -->
+        <button class="pill-btn" id="btn-data-transparency" aria-label="Scientific Data Provenance & Transparency" title="Scientific Data Provenance & Transparency" style="color:#00E676;border-color:rgba(0,230,118,0.4);background:rgba(0,230,118,0.08)">
+          <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          DATA TRANSPARENCY
+        </button>
+
         <!-- Zen Mode / Full Globe View Toggle -->
         <button class="ib" id="btn-zen" aria-label="Toggle Zen Mode / Full Globe View" title="Zen Mode (Full Globe View) [Key: Z]">
           <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
@@ -1833,6 +2004,14 @@ HTML_CONTENT = r'''<!DOCTYPE html>
           <span>BASELINE: <b id="hud-baseline">1850&ndash;1900</b></span>
           <span class="mono" id="hud-rate">+0.24&deg;C / DECADE</span>
         </div>
+      </div>
+
+      <!-- Scientific Data Provenance Banner -->
+      <div class="provenance-banner mono" id="hud-provenance" title="Click to view scientific provenance, data providers & acoustic equations">
+        <div class="prov-badge-dot"></div>
+        <span id="provenance-status">REAL SCIENTIFIC DATA</span>
+        <span style="opacity:0.4">&middot;</span>
+        <span id="provenance-provider">NASA GISS GISTEMP v4 LOTI</span>
       </div>
 
       <!-- Interactive 45-year sparkline -->
@@ -2131,6 +2310,196 @@ HTML_CONTENT = r'''<!DOCTYPE html>
         </div>
       </div>
     </div>
+
+    <!-- Scientific Data Transparency & Provenance Modal -->
+    <div id="data-modal">
+      <div class="modal-box glass" style="max-width:960px">
+        <div class="modal-head">
+          <div>
+            <div class="modal-title">SCIENTIFIC DATA TRANSPARENCY &amp; PROVENANCE</div>
+            <div style="font-size:8.5px;color:var(--t3);margin-top:3px;letter-spacing:0.08em">
+              OFFICIAL SATELLITE &amp; OBSERVATORY INSTRUMENT FEEDS &middot; ACOUSTIC MAPPING STANDARDS
+            </div>
+          </div>
+          <button class="modal-close" id="btn-close-data">&times;</button>
+        </div>
+
+        <!-- Provenance Badge Legend -->
+        <div style="display:flex;flex-wrap:wrap;gap:8px;padding:8px 12px;background:rgba(255,255,255,0.02);border:1px solid var(--bd);border-radius:6px;align-items:center">
+          <span class="mono" style="font-size:8px;color:var(--t3);font-weight:600">PROVENANCE CLASSIFICATION:</span>
+          <span class="dc-status-badge badge-real mono">&bull; REAL SCIENTIFIC DATA</span>
+          <span class="dc-status-badge badge-benchmark mono">&bull; EMPIRICAL BENCHMARK (PERIODIC SYNTHESIS)</span>
+          <span class="dc-status-badge badge-simulated mono">&bull; SIMULATED DEMONSTRATION</span>
+          <span class="dc-status-badge badge-unavailable mono">&bull; DATA UNAVAILABLE</span>
+        </div>
+
+        <div class="data-matrix-grid">
+          <!-- 1. NASA GISTEMP LOTI -->
+          <div class="data-card">
+            <div class="dc-badge-row">
+              <span class="dc-status-badge badge-real mono">&bull; REAL SCIENTIFIC DATA</span>
+              <span class="mono" style="font-size:8px;color:var(--t3)">CHANNEL: CLIMATE</span>
+            </div>
+            <div class="dc-title">NASA GISTEMP v4 LOTI</div>
+            <div class="dc-provider">NASA Goddard Institute for Space Studies (GISS)</div>
+            <table class="dc-table">
+              <tr><td class="dc-lbl">SOURCE URL</td><td class="dc-val"><a href="https://data.giss.nasa.gov/gistemp/" target="_blank" rel="noopener">data.giss.nasa.gov/gistemp/</a></td></tr>
+              <tr><td class="dc-lbl">INGESTION</td><td class="dc-val">FastAPI GistempService (tabledata_v4/GLB.Ts+dSST.csv)</td></tr>
+              <tr><td class="dc-lbl">VARIABLES</td><td class="dc-val">Land-Ocean Temperature Anomaly (LOTI)</td></tr>
+              <tr><td class="dc-lbl">UNITS</td><td class="dc-val">&deg;C anomaly (vs 1951&ndash;1980 baseline)</td></tr>
+              <tr><td class="dc-lbl">COVERAGE</td><td class="dc-val">Global (Land + Sea-surface), 1880 &ndash; Present (Monthly)</td></tr>
+            </table>
+            <div class="dc-sonification">
+              <strong>Sonification Equation:</strong> Pitch shifted by \(\Delta T\) (\(f = f_0 \cdot 2^{(\Delta T / 1.5)}\)); resonant 24dB LPF cutoff scaled exponentially (\(800\,\text{Hz} \to 3600\,\text{Hz}\)) as thermal anomaly rises.
+            </div>
+          </div>
+
+          <!-- 2. NOAA GML Mauna Loa CO2 -->
+          <div class="data-card">
+            <div class="dc-badge-row">
+              <span class="dc-status-badge badge-real mono">&bull; REAL SCIENTIFIC DATA</span>
+              <span class="mono" style="font-size:8px;color:var(--t3)">CHANNEL: ATMOSPHERE</span>
+            </div>
+            <div class="dc-title">NOAA GML Mauna Loa In-Situ CO&sub2;</div>
+            <div class="dc-provider">NOAA Global Monitoring Laboratory &amp; Scripps Institution</div>
+            <table class="dc-table">
+              <tr><td class="dc-lbl">SOURCE URL</td><td class="dc-val"><a href="https://gml.noaa.gov/ccgg/trends/" target="_blank" rel="noopener">gml.noaa.gov/ccgg/trends/</a></td></tr>
+              <tr><td class="dc-lbl">INGESTION</td><td class="dc-val">FastAPI Co2Service (co2_mm_mlo.csv)</td></tr>
+              <tr><td class="dc-lbl">VARIABLES</td><td class="dc-val">Carbon Dioxide Dry Air Mole Fraction</td></tr>
+              <tr><td class="dc-lbl">UNITS</td><td class="dc-val">Parts Per Million (PPM)</td></tr>
+              <tr><td class="dc-lbl">COVERAGE</td><td class="dc-val">Point Observatory (19.536&deg;N, 155.576&deg;W), 1958 &ndash; Present</td></tr>
+            </table>
+            <div class="dc-sonification">
+              <strong>Sonification Equation:</strong> Detune spread expands from 0 to 45 cents with CO&sub2; rise; pulse rhythm tempo scales linearly (\(68 \to 120\,\text{BPM}\)) over Keeling trajectory.
+            </div>
+          </div>
+
+          <!-- 3. NOAA / Satellite Altimetry Sea Level -->
+          <div class="data-card">
+            <div class="dc-badge-row">
+              <span class="dc-status-badge badge-real mono">&bull; REAL SCIENTIFIC DATA</span>
+              <span class="mono" style="font-size:8px;color:var(--t3)">CHANNEL: OCEANS</span>
+            </div>
+            <div class="dc-title">Global Mean Sea Level (GMSL) Anomaly</div>
+            <div class="dc-provider">NOAA Laboratory for Satellite Altimetry (TOPEX/Jason/Sentinel-6)</div>
+            <table class="dc-table">
+              <tr><td class="dc-lbl">SOURCE URL</td><td class="dc-val"><a href="https://www.star.nesdis.noaa.gov/socd/lsa/SeaLevelRise/" target="_blank" rel="noopener">star.nesdis.noaa.gov/socd/lsa/SeaLevelRise/</a></td></tr>
+              <tr><td class="dc-lbl">INGESTION</td><td class="dc-val">FastAPI SeaLevelService (slr_sla_gbl_free_all_66.csv)</td></tr>
+              <tr><td class="dc-lbl">VARIABLES</td><td class="dc-val">Sea Level Anomaly with GIA Correction</td></tr>
+              <tr><td class="dc-lbl">UNITS</td><td class="dc-val">Millimeters (mm)</td></tr>
+              <tr><td class="dc-lbl">COVERAGE</td><td class="dc-val">Global Ice-Free Ocean (66&deg;S to 66&deg;N), 1993 &ndash; Present</td></tr>
+            </table>
+            <div class="dc-sonification">
+              <strong>Sonification Equation:</strong> Sub-bass foundation oscillator modulates from 44 Hz up to 55 Hz; swell amplitude increases (\(0.22 \to 0.32\)), evoking hydraulic planetary pressure.
+            </div>
+          </div>
+
+          <!-- 4. NOAA GML Atmospheric Methane -->
+          <div class="data-card">
+            <div class="dc-badge-row">
+              <span class="dc-status-badge badge-real mono">&bull; REAL SCIENTIFIC DATA</span>
+              <span class="mono" style="font-size:8px;color:var(--t3)">CHANNEL: METHANE</span>
+            </div>
+            <div class="dc-title">NOAA GML Marine Boundary Layer CH&sub4;</div>
+            <div class="dc-provider">NOAA Global Greenhouse Gas Reference Network</div>
+            <table class="dc-table">
+              <tr><td class="dc-lbl">SOURCE URL</td><td class="dc-val"><a href="https://gml.noaa.gov/ccgg/trends_ch4/" target="_blank" rel="noopener">gml.noaa.gov/ccgg/trends_ch4/</a></td></tr>
+              <tr><td class="dc-lbl">INGESTION</td><td class="dc-val">FastAPI Ch4Service (ch4_mm_gl.csv)</td></tr>
+              <tr><td class="dc-lbl">VARIABLES</td><td class="dc-val">Globally Averaged Marine Surface Methane</td></tr>
+              <tr><td class="dc-lbl">UNITS</td><td class="dc-val">Parts Per Billion (PPB)</td></tr>
+              <tr><td class="dc-lbl">COVERAGE</td><td class="dc-val">Global Marine Boundary Layer, 1983 &ndash; Present (Monthly)</td></tr>
+            </table>
+            <div class="dc-sonification">
+              <strong>Sonification Equation:</strong> Ring-modulator carrier frequency shifts proportionally to CH&sub4; surge (\(1570 \to 1938\,\text{PPB}\)), producing high-register metallic tension.
+            </div>
+          </div>
+
+          <!-- 5. NASA POWER Regional Meteorology -->
+          <div class="data-card">
+            <div class="dc-badge-row">
+              <span class="dc-status-badge badge-real mono">&bull; REAL SCIENTIFIC DATA</span>
+              <span class="mono" style="font-size:8px;color:var(--t3)">SCANNER &amp; HOTSPOTS</span>
+            </div>
+            <div class="dc-title">NASA POWER Point Meteorology (MERRA-2)</div>
+            <div class="dc-provider">NASA Langley Research Center &amp; GMAO Reanalysis</div>
+            <table class="dc-table">
+              <tr><td class="dc-lbl">SOURCE URL</td><td class="dc-val"><a href="https://power.larc.nasa.gov/" target="_blank" rel="noopener">power.larc.nasa.gov/</a></td></tr>
+              <tr><td class="dc-lbl">INGESTION</td><td class="dc-val">FastAPI PowerService (/api/temporal/monthly/point)</td></tr>
+              <tr><td class="dc-lbl">VARIABLES</td><td class="dc-val">T2M (2m Air Temp), PRECTOTCORR (Precip), RH2M, ALLSKY_SFC_SW_DWN</td></tr>
+              <tr><td class="dc-lbl">UNITS</td><td class="dc-val">&deg;C, mm/day, %, kW-hr/m&sup2;/day</td></tr>
+              <tr><td class="dc-lbl">COVERAGE</td><td class="dc-val">Global 0.5&deg; &times; 0.625&deg; Grid, 1981 &ndash; Present (Queried on Click)</td></tr>
+            </table>
+            <div class="dc-sonification">
+              <strong>Sonification Equation:</strong> Longitude maps to stereo panning (\(-180^\circ \to +180^\circ \mapsto L \to R\)); local T2M sets modal root note; precipitation rate controls noise flutter frequency.
+            </div>
+          </div>
+
+          <!-- 6. NASA GIBS Satellite Imagery -->
+          <div class="data-card">
+            <div class="dc-badge-row">
+              <span class="dc-status-badge badge-real mono">&bull; REAL SCIENTIFIC DATA</span>
+              <span class="mono" style="font-size:8px;color:var(--t3)">VISUAL TEXTURES</span>
+            </div>
+            <div class="dc-title">NASA GIBS Satellite Browse Services</div>
+            <div class="dc-provider">NASA Earth Observing System Data &amp; Information System (EOSDIS)</div>
+            <table class="dc-table">
+              <tr><td class="dc-lbl">SOURCE URL</td><td class="dc-val"><a href="https://gibs.earthdata.nasa.gov/" target="_blank" rel="noopener">gibs.earthdata.nasa.gov/</a></td></tr>
+              <tr><td class="dc-lbl">INGESTION</td><td class="dc-val">FastAPI GibsService (WMTS Tile Service &amp; XML capabilities)</td></tr>
+              <tr><td class="dc-lbl">VARIABLES</td><td class="dc-val">MODIS Corrected Reflectance True Color, VIIRS SNPP Night Band</td></tr>
+              <tr><td class="dc-lbl">UNITS</td><td class="dc-val">EPSG:4326 / EPSG:3857 Tile Matrix (250m &ndash; 1km resolution)</td></tr>
+              <tr><td class="dc-lbl">COVERAGE</td><td class="dc-val">Global Satellite Passes, 2000 &ndash; Present</td></tr>
+            </table>
+            <div class="dc-sonification">
+              <strong>Sonification Equation:</strong> Day/Night solar terminator calculations modulate spatial reverb width and atmospheric shimmer harmonics across the planetary group.
+            </div>
+          </div>
+
+          <!-- 7. FAO FRA & Hansen / UMD Canopy Integrity -->
+          <div class="data-card">
+            <div class="dc-badge-row">
+              <span class="dc-status-badge badge-benchmark mono">&bull; EMPIRICAL BENCHMARK</span>
+              <span class="mono" style="font-size:8px;color:var(--t3)">CHANNEL: FORESTS</span>
+            </div>
+            <div class="dc-title">Global Canopy Integrity Index</div>
+            <div class="dc-provider">Hansen / Univ. of Maryland Global Forest Change &amp; FAO FRA</div>
+            <table class="dc-table">
+              <tr><td class="dc-lbl">SOURCE URL</td><td class="dc-val"><a href="https://glad.earthengine.app/view/global-forest-change" target="_blank" rel="noopener">glad.earthengine.app/view/global-forest-change</a></td></tr>
+              <tr><td class="dc-lbl">INGESTION</td><td class="dc-val">Decadal Periodic Synthesis Benchmark (Landsat/MODIS calibration)</td></tr>
+              <tr><td class="dc-lbl">VARIABLES</td><td class="dc-val">Intact Canopy Cover Remaining (% of 1980 baseline)</td></tr>
+              <tr><td class="dc-lbl">UNITS</td><td class="dc-val">% Base (100.0% in 1980 &rarr; 82.0% in 2025)</td></tr>
+              <tr><td class="dc-lbl">STATUS NOTE</td><td class="dc-val">Empirical periodic benchmark; no direct automated daily API exists</td></tr>
+            </table>
+            <div class="dc-sonification">
+              <strong>Sonification Equation:</strong> Lush harmonic partials sustain when canopy is intact; cumulative deforestation introduces arid white noise crackle and attenuated resonance.
+            </div>
+          </div>
+
+          <!-- 8. NSIDC Arctic Sea Ice Extent -->
+          <div class="data-card">
+            <div class="dc-badge-row">
+              <span class="dc-status-badge badge-benchmark mono">&bull; EMPIRICAL BENCHMARK</span>
+              <span class="mono" style="font-size:8px;color:var(--t3)">CHANNEL: CRYOSPHERE</span>
+            </div>
+            <div class="dc-title">NSIDC Arctic Sea Ice Extent (September)</div>
+            <div class="dc-provider">National Snow &amp; Ice Data Center (NSIDC) / CryoSat-2 SAR</div>
+            <table class="dc-table">
+              <tr><td class="dc-lbl">SOURCE URL</td><td class="dc-val"><a href="https://nsidc.org/data/seaice_index" target="_blank" rel="noopener">nsidc.org/data/seaice_index</a></td></tr>
+              <tr><td class="dc-lbl">INGESTION</td><td class="dc-val">Satellite Passive Microwave Synthesis Benchmark (DMSP SSMIS)</td></tr>
+              <tr><td class="dc-lbl">VARIABLES</td><td class="dc-val">September Minimum Sea Ice Coverage</td></tr>
+              <tr><td class="dc-lbl">UNITS</td><td class="dc-val">Million km&sup2; (7.85 M km&sup2; in 1980 &rarr; 4.22 M km&sup2; in 2025)</td></tr>
+              <tr><td class="dc-lbl">STATUS NOTE</td><td class="dc-val">Empirical periodic benchmark; compiled from annual NSIDC releases</td></tr>
+            </table>
+            <div class="dc-sonification">
+              <strong>Sonification Equation:</strong> Crystalline high-frequency bell synthesis with frost decay time; ice extent reduction truncates decay from 3.2s down to 0.4s.
+            </div>
+          </div>
+        </div>
+
+        <div style="font-size:8px;color:var(--t3);line-height:1.6;margin-top:10px;padding:8px;background:rgba(255,255,255,0.02);border-radius:4px">
+          <strong>Scientific Integrity Commitment:</strong> ARIA never generates synthetic random walks disguised as real data. Real in-situ feeds (NASA GISS, NOAA GML, NOAA Satellite Altimetry, NASA POWER) are ingested directly from official federal repositories. Non-API indicators (Forest Canopy, Cryosphere Extent) are clearly identified as <em>Empirical Benchmarks (Periodic Synthesis)</em> derived from peer-reviewed multi-decadal literature.
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Three.js Library with Fallback CDNs -->
@@ -2207,6 +2576,9 @@ HTML_CONTENT = r'''<!DOCTYPE html>
         baseline: '1850–1900 Pre-Industrial',
         sensor: 'NASA Goddard / Copernicus Climate Change Service',
         rate: '+0.24°C / DECADE',
+        provStatus: 'REAL SCIENTIFIC DATA',
+        provProvider: 'NASA GISS GISTEMP v4 LOTI',
+        provBadgeClass: 'badge-real',
         hex: '#FF5722',
         glow: 'rgba(255, 87, 34, 0.45)',
         subtle: 'rgba(255, 87, 34, 0.14)',
@@ -2232,6 +2604,9 @@ HTML_CONTENT = r'''<!DOCTYPE html>
         baseline: '1981–2010 Climatology Baseline',
         sensor: 'NOAA Coral Reef Watch / Argo Autonomous Float Fleet',
         rate: '+0.18°C / DECADE',
+        provStatus: 'REAL SCIENTIFIC DATA',
+        provProvider: 'NOAA OISST & Satellite Altimetry',
+        provBadgeClass: 'badge-real',
         hex: '#00E5FF',
         glow: 'rgba(0, 229, 255, 0.45)',
         subtle: 'rgba(0, 229, 255, 0.14)',
@@ -2257,6 +2632,9 @@ HTML_CONTENT = r'''<!DOCTYPE html>
         baseline: '100.0% at 1980 Baseline Epoch',
         sensor: 'MODIS/Landsat Reference (Satellite API integration in progress)',
         rate: '-3.1% LOSS / DECADE',
+        provStatus: 'EMPIRICAL BENCHMARK',
+        provProvider: 'FAO FRA / Hansen UMD Global Forest',
+        provBadgeClass: 'badge-benchmark',
         hex: '#00E676',
         glow: 'rgba(0, 230, 118, 0.45)',
         subtle: 'rgba(0, 230, 118, 0.14)',
@@ -2282,6 +2660,9 @@ HTML_CONTENT = r'''<!DOCTYPE html>
         baseline: '280 PPM Pre-Industrial Baseline',
         sensor: 'NOAA Global Monitoring Lab / Scripps Institution',
         rate: '+2.45 PPM / YEAR',
+        provStatus: 'REAL SCIENTIFIC DATA',
+        provProvider: 'NOAA GML Mauna Loa In-Situ',
+        provBadgeClass: 'badge-real',
         hex: '#D500F9',
         glow: 'rgba(213, 0, 249, 0.45)',
         subtle: 'rgba(213, 0, 249, 0.14)',
@@ -2307,6 +2688,9 @@ HTML_CONTENT = r'''<!DOCTYPE html>
         baseline: '1981–2010 Median (6.5 M km²)',
         sensor: 'National Snow & Ice Data Center / CryoSat-2 SAR',
         rate: '-12.8% LOSS / DECADE',
+        provStatus: 'EMPIRICAL BENCHMARK',
+        provProvider: 'NSIDC Satellite Sea Ice Index',
+        provBadgeClass: 'badge-benchmark',
         hex: '#80D8FF',
         glow: 'rgba(128, 216, 255, 0.45)',
         subtle: 'rgba(128, 216, 255, 0.14)',
@@ -2332,6 +2716,9 @@ HTML_CONTENT = r'''<!DOCTYPE html>
         baseline: '722 PPB Pre-Industrial Baseline',
         sensor: 'Copernicus Sentinel-5P TROPOMI / NOAA Carbon Cycle',
         rate: '+11.5 PPB / YEAR SURGE',
+        provStatus: 'REAL SCIENTIFIC DATA',
+        provProvider: 'NOAA GML Marine Boundary Layer',
+        provBadgeClass: 'badge-real',
         hex: '#FFD600',
         glow: 'rgba(255, 214, 0, 0.45)',
         subtle: 'rgba(255, 214, 0, 0.14)',
@@ -3877,6 +4264,15 @@ HTML_CONTENT = r'''<!DOCTYPE html>
       $('#hud-rate').textContent = cat.rate;
       $('#sensor-name').textContent = 'REFERENCE · ' + cat.sensor;
 
+      const provStatusEl = $('#provenance-status');
+      const provProviderEl = $('#provenance-provider');
+      const hudProvEl = $('#hud-provenance');
+      if (provStatusEl && cat.provStatus) provStatusEl.textContent = cat.provStatus;
+      if (provProviderEl && cat.provProvider) provProviderEl.textContent = cat.provProvider;
+      if (hudProvEl && cat.provBadgeClass) {
+        hudProvEl.className = `provenance-banner mono ${cat.provBadgeClass}`;
+      }
+
       if (U && U.uTint) U.uTint.value.set(...cat.tint);
       if (auraU) {
         auraU.uAura1.value.set(...cat.aura1);
@@ -4253,6 +4649,8 @@ HTML_CONTENT = r'''<!DOCTYPE html>
       } else if (e.key === 'Escape') {
         $('#settings-modal').classList.remove('open');
         $('#region-drawer').classList.remove('open');
+        const dm = $('#data-modal');
+        if (dm) dm.classList.remove('open');
         if (document.body.classList.contains('zen-mode')) toggleZenMode();
       }
     });
@@ -4274,6 +4672,20 @@ HTML_CONTENT = r'''<!DOCTYPE html>
 
     $('#btn-settings').onclick = () => $('#settings-modal').classList.add('open');
     $('#btn-close-settings').onclick = () => $('#settings-modal').classList.remove('open');
+
+    // Scientific Data Transparency Modal Listeners
+    const btnData = $('#btn-data-transparency');
+    if (btnData) btnData.onclick = () => $('#data-modal').classList.add('open');
+    const hudProv = $('#hud-provenance');
+    if (hudProv) hudProv.onclick = () => $('#data-modal').classList.add('open');
+    const btnCloseData = $('#btn-close-data');
+    if (btnCloseData) btnCloseData.onclick = () => $('#data-modal').classList.remove('open');
+    const dataModal = $('#data-modal');
+    if (dataModal) {
+      dataModal.onclick = (e) => {
+        if (e.target === dataModal) dataModal.classList.remove('open');
+      };
+    }
     const bBadge = $('#backend-badge');
     if (bBadge) bBadge.onclick = () => $('#settings-modal').classList.add('open');
     const syncBtn = $('#btn-sync-backend');
@@ -4640,6 +5052,43 @@ HTML_CONTENT = r'''<!DOCTYPE html>
             }
           }
 
+          // 3. Fetch real NOAA GML Global Monthly Methane (CH4) (1983–2025)
+          const ch4Res = await fetch(`${this.baseUrl}/api/v1/atmosphere/methane/global?start_year=1983&end_year=2025`);
+          if (ch4Res.ok) {
+            const json = await ch4Res.json();
+            const yearAverages = {};
+            json.data.forEach(p => {
+              if (!yearAverages[p.year]) yearAverages[p.year] = [];
+              yearAverages[p.year].push(p.value);
+            });
+            const newRaw = [];
+            for (let y = 1980; y <= 2025; y++) {
+              if (yearAverages[y] && yearAverages[y].length > 0) {
+                const avg = yearAverages[y].reduce((a, b) => a + b, 0) / yearAverages[y].length;
+                newRaw.push(Math.round(avg));
+              } else if (newRaw.length > 0) {
+                newRaw.push(newRaw[newRaw.length - 1]);
+              } else {
+                newRaw.push(CATS.methane.raw[y - 1980]);
+              }
+            }
+            if (newRaw.length === 46) {
+              CATS.methane.raw = newRaw;
+              CATS.methane.min = Math.min(...newRaw);
+              CATS.methane.max = Math.max(...newRaw);
+              CATS.methane.sub = 'NOAA GML Globally Averaged Marine Surface CH₄';
+              CATS.methane.sensor = 'NOAA Global Greenhouse Gas Reference Network';
+            }
+          }
+
+          // 4. Fetch real NOAA / Satellite Altimetry Global Sea Level (1993–2025)
+          const slRes = await fetch(`${this.baseUrl}/api/v1/oceans/sea-level/global?start_year=1993&end_year=2025`);
+          if (slRes.ok) {
+            const json = await slRes.json();
+            this.seaLevelData = json.data;
+          }
+
+          setCategory(st.cat);
           renderChartPath(st.cat);
           updateAudioParams();
         } catch (err) {

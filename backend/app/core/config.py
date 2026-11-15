@@ -50,6 +50,7 @@ class Settings(BaseSettings):
     # Official Scientific Dataset URLs
     GISTEMP_URL: str = "https://data.giss.nasa.gov/gistemp/tabledata_v4/GLB.Ts+dSST.csv"
     NOAA_CO2_URL: str = "https://gml.noaa.gov/webdata/ccgg/trends/co2/co2_mm_mlo.csv"
+    NOAA_CH4_URL: str = "https://gml.noaa.gov/webdata/ccgg/trends/ch4/ch4_mm_gl.csv"
     NOAA_GMSL_URL: str = "https://www.star.nesdis.noaa.gov/socd/lsa/SeaLevelRise/slr/slr_sla_gbl_free_all_66.csv"
     NASA_POWER_BASE_URL: str = "https://power.larc.nasa.gov/api/temporal/monthly/point"
     NASA_GIBS_WMTS_URL: str = "https://gibs.earthdata.nasa.gov/wmts/epsg4326/best/wmts.cgi"

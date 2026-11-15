@@ -10,6 +10,7 @@ from app.utils.http_client import HttpClient
 from app.api.router import api_router
 from app.services.gistemp_service import GistempService
 from app.services.co2_service import Co2Service
+from app.services.ch4_service import Ch4Service
 from app.services.sea_level_service import SeaLevelService
 
 setup_logging()
@@ -26,6 +27,7 @@ async def lifespan(app: FastAPI):
         logger.info("Synchronizing core datasets in database...")
         await GistempService.sync_database(db)
         await Co2Service.sync_database(db)
+        await Ch4Service.sync_database(db)
         await SeaLevelService.sync_database(db)
         logger.info("Core scientific datasets successfully loaded.")
     except Exception as e:

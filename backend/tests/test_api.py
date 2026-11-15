@@ -27,6 +27,7 @@ def test_list_datasets():
     dataset_ids = [d["id"] for d in data]
     assert "global_temperature" in dataset_ids
     assert "atmosphere_co2_mlo" in dataset_ids
+    assert "atmosphere_methane_global" in dataset_ids
     assert "global_sea_level" in dataset_ids
 
 def test_system_metadata():
@@ -79,6 +80,25 @@ def test_noaa_co2_filtered():
     data = response.json()
     for point in data["data"]:
         assert 2015 <= point["year"] <= 2024
+
+def test_noaa_ch4_methane():
+    response = client.get("/api/v1/atmosphere/methane/global")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["dataset"]["id"] == "atmosphere_methane_global"
+    assert data["dataset"]["unit"] == "ppb"
+    assert "NOAA" in data["dataset"]["organization"]
+    assert len(data["data"]) > 400
+    # Values should be realistic (above 1500 ppb, below 2200 ppb)
+    assert data["data"][0]["value"] > 1500.0
+    assert data["data"][-1]["value"] > 1900.0
+
+def test_noaa_ch4_filtered():
+    response = client.get("/api/v1/atmosphere/methane/global?start_year=2010&end_year=2024")
+    assert response.status_code == 200
+    data = response.json()
+    for point in data["data"]:
+        assert 2010 <= point["year"] <= 2024
 
 def test_global_sea_level():
     response = client.get("/api/v1/oceans/sea-level/global")

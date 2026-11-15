@@ -69,6 +69,9 @@ if (typeof THREE === 'undefined') {
         baseline: '1850–1900 Pre-Industrial',
         sensor: 'NASA Goddard / Copernicus Climate Change Service',
         rate: '+0.24°C / DECADE',
+        provStatus: 'REAL SCIENTIFIC DATA',
+        provProvider: 'NASA GISS GISTEMP v4 LOTI',
+        provBadgeClass: 'badge-real',
         hex: '#FF5722',
         glow: 'rgba(255, 87, 34, 0.45)',
         subtle: 'rgba(255, 87, 34, 0.14)',
@@ -94,6 +97,9 @@ if (typeof THREE === 'undefined') {
         baseline: '1981–2010 Climatology Baseline',
         sensor: 'NOAA Coral Reef Watch / Argo Autonomous Float Fleet',
         rate: '+0.18°C / DECADE',
+        provStatus: 'REAL SCIENTIFIC DATA',
+        provProvider: 'NOAA OISST & Satellite Altimetry',
+        provBadgeClass: 'badge-real',
         hex: '#00E5FF',
         glow: 'rgba(0, 229, 255, 0.45)',
         subtle: 'rgba(0, 229, 255, 0.14)',
@@ -119,6 +125,9 @@ if (typeof THREE === 'undefined') {
         baseline: '100.0% at 1980 Baseline Epoch',
         sensor: 'MODIS/Landsat Reference (Satellite API integration in progress)',
         rate: '-3.1% LOSS / DECADE',
+        provStatus: 'EMPIRICAL BENCHMARK',
+        provProvider: 'FAO FRA / Hansen UMD Global Forest',
+        provBadgeClass: 'badge-benchmark',
         hex: '#00E676',
         glow: 'rgba(0, 230, 118, 0.45)',
         subtle: 'rgba(0, 230, 118, 0.14)',
@@ -144,6 +153,9 @@ if (typeof THREE === 'undefined') {
         baseline: '280 PPM Pre-Industrial Baseline',
         sensor: 'NOAA Global Monitoring Lab / Scripps Institution',
         rate: '+2.45 PPM / YEAR',
+        provStatus: 'REAL SCIENTIFIC DATA',
+        provProvider: 'NOAA GML Mauna Loa In-Situ',
+        provBadgeClass: 'badge-real',
         hex: '#D500F9',
         glow: 'rgba(213, 0, 249, 0.45)',
         subtle: 'rgba(213, 0, 249, 0.14)',
@@ -169,6 +181,9 @@ if (typeof THREE === 'undefined') {
         baseline: '1981–2010 Median (6.5 M km²)',
         sensor: 'National Snow & Ice Data Center / CryoSat-2 SAR',
         rate: '-12.8% LOSS / DECADE',
+        provStatus: 'EMPIRICAL BENCHMARK',
+        provProvider: 'NSIDC Satellite Sea Ice Index',
+        provBadgeClass: 'badge-benchmark',
         hex: '#80D8FF',
         glow: 'rgba(128, 216, 255, 0.45)',
         subtle: 'rgba(128, 216, 255, 0.14)',
@@ -194,6 +209,9 @@ if (typeof THREE === 'undefined') {
         baseline: '722 PPB Pre-Industrial Baseline',
         sensor: 'Copernicus Sentinel-5P TROPOMI / NOAA Carbon Cycle',
         rate: '+11.5 PPB / YEAR SURGE',
+        provStatus: 'REAL SCIENTIFIC DATA',
+        provProvider: 'NOAA GML Marine Boundary Layer',
+        provBadgeClass: 'badge-real',
         hex: '#FFD600',
         glow: 'rgba(255, 214, 0, 0.45)',
         subtle: 'rgba(255, 214, 0, 0.14)',
@@ -1739,6 +1757,15 @@ if (typeof THREE === 'undefined') {
       $('#hud-rate').textContent = cat.rate;
       $('#sensor-name').textContent = 'REFERENCE · ' + cat.sensor;
 
+      const provStatusEl = $('#provenance-status');
+      const provProviderEl = $('#provenance-provider');
+      const hudProvEl = $('#hud-provenance');
+      if (provStatusEl && cat.provStatus) provStatusEl.textContent = cat.provStatus;
+      if (provProviderEl && cat.provProvider) provProviderEl.textContent = cat.provProvider;
+      if (hudProvEl && cat.provBadgeClass) {
+        hudProvEl.className = `provenance-banner mono ${cat.provBadgeClass}`;
+      }
+
       if (U && U.uTint) U.uTint.value.set(...cat.tint);
       if (auraU) {
         auraU.uAura1.value.set(...cat.aura1);
@@ -2115,6 +2142,8 @@ if (typeof THREE === 'undefined') {
       } else if (e.key === 'Escape') {
         $('#settings-modal').classList.remove('open');
         $('#region-drawer').classList.remove('open');
+        const dm = $('#data-modal');
+        if (dm) dm.classList.remove('open');
         if (document.body.classList.contains('zen-mode')) toggleZenMode();
       }
     });
@@ -2136,6 +2165,20 @@ if (typeof THREE === 'undefined') {
 
     $('#btn-settings').onclick = () => $('#settings-modal').classList.add('open');
     $('#btn-close-settings').onclick = () => $('#settings-modal').classList.remove('open');
+
+    // Scientific Data Transparency Modal Listeners
+    const btnData = $('#btn-data-transparency');
+    if (btnData) btnData.onclick = () => $('#data-modal').classList.add('open');
+    const hudProv = $('#hud-provenance');
+    if (hudProv) hudProv.onclick = () => $('#data-modal').classList.add('open');
+    const btnCloseData = $('#btn-close-data');
+    if (btnCloseData) btnCloseData.onclick = () => $('#data-modal').classList.remove('open');
+    const dataModal = $('#data-modal');
+    if (dataModal) {
+      dataModal.onclick = (e) => {
+        if (e.target === dataModal) dataModal.classList.remove('open');
+      };
+    }
     const bBadge = $('#backend-badge');
     if (bBadge) bBadge.onclick = () => $('#settings-modal').classList.add('open');
     const syncBtn = $('#btn-sync-backend');
@@ -2502,6 +2545,43 @@ if (typeof THREE === 'undefined') {
             }
           }
 
+          // 3. Fetch real NOAA GML Global Monthly Methane (CH4) (1983–2025)
+          const ch4Res = await fetch(`${this.baseUrl}/api/v1/atmosphere/methane/global?start_year=1983&end_year=2025`);
+          if (ch4Res.ok) {
+            const json = await ch4Res.json();
+            const yearAverages = {};
+            json.data.forEach(p => {
+              if (!yearAverages[p.year]) yearAverages[p.year] = [];
+              yearAverages[p.year].push(p.value);
+            });
+            const newRaw = [];
+            for (let y = 1980; y <= 2025; y++) {
+              if (yearAverages[y] && yearAverages[y].length > 0) {
+                const avg = yearAverages[y].reduce((a, b) => a + b, 0) / yearAverages[y].length;
+                newRaw.push(Math.round(avg));
+              } else if (newRaw.length > 0) {
+                newRaw.push(newRaw[newRaw.length - 1]);
+              } else {
+                newRaw.push(CATS.methane.raw[y - 1980]);
+              }
+            }
+            if (newRaw.length === 46) {
+              CATS.methane.raw = newRaw;
+              CATS.methane.min = Math.min(...newRaw);
+              CATS.methane.max = Math.max(...newRaw);
+              CATS.methane.sub = 'NOAA GML Globally Averaged Marine Surface CH₄';
+              CATS.methane.sensor = 'NOAA Global Greenhouse Gas Reference Network';
+            }
+          }
+
+          // 4. Fetch real NOAA / Satellite Altimetry Global Sea Level (1993–2025)
+          const slRes = await fetch(`${this.baseUrl}/api/v1/oceans/sea-level/global?start_year=1993&end_year=2025`);
+          if (slRes.ok) {
+            const json = await slRes.json();
+            this.seaLevelData = json.data;
+          }
+
+          setCategory(st.cat);
           renderChartPath(st.cat);
           updateAudioParams();
         } catch (err) {

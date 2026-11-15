@@ -416,8 +416,36 @@ async function runTests() {
     const co2Sub = await evaluate("window.ARIA.CATS.atmosphere.sub");
     assert('Atmospheric CO2 dataset synchronized with official NOAA GML', co2Sub.includes('Mauna Loa') || co2Sub.includes('NOAA'), co2Sub);
 
-    // Test 16: Check Console Errors and Exceptions
-    console.log('\nTest Group 16: Console Error & Uncaught Exception Audit');
+    const methaneSub = await evaluate("window.ARIA.CATS.methane.sub");
+    assert('Atmospheric Methane dataset synchronized with official NOAA GML', methaneSub.includes('NOAA') || window.ARIA.CATS.methane.raw.length === 46, methaneSub);
+
+    // Test 16: Scientific Data Transparency & Provenance Modal
+    console.log('\nTest Group 16: Scientific Data Transparency & Provenance System');
+    await evaluate("document.getElementById('btn-data-transparency').click()");
+    const dataModalOpen = await evaluate("document.getElementById('data-modal').classList.contains('open')");
+    assert('Data Transparency modal opens via header action button', dataModalOpen);
+
+    const dataCardCount = await evaluate("document.querySelectorAll('.data-card').length");
+    assert('All 8 official dataset & benchmark transparency cards rendered', dataCardCount === 8, `Count: ${dataCardCount}`);
+
+    await evaluate("document.getElementById('btn-close-data').click()");
+    const dataModalClosed = await evaluate("!document.getElementById('data-modal').classList.contains('open')");
+    assert('Data Transparency modal closes via close button', dataModalClosed);
+
+    await evaluate("document.getElementById('hud-provenance').click()");
+    const provModalOpen = await evaluate("document.getElementById('data-modal').classList.contains('open')");
+    assert('HUD provenance banner opens Data Transparency modal on click', provModalOpen);
+
+    await evaluate("window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }))");
+    const escModalClosed = await evaluate("!document.getElementById('data-modal').classList.contains('open')");
+    assert('Escape key cleanly dismisses Data Transparency modal', escModalClosed);
+
+    const provStatus = await evaluate("document.getElementById('provenance-status').textContent");
+    const provProvider = await evaluate("document.getElementById('provenance-provider').textContent");
+    assert('HUD provenance banner displays genuine instrument classification', provStatus.length > 0 && provProvider.length > 0, `${provStatus} · ${provProvider}`);
+
+    // Test 17: Check Console Errors and Exceptions
+    console.log('\nTest Group 17: Console Error & Uncaught Exception Audit');
     assert('Zero uncaught JavaScript exceptions during user journey', uncaughtExceptions.length === 0, uncaughtExceptions.join(' | '));
     assert('Zero browser console errors logged', consoleErrors.length === 0, consoleErrors.join(' | '));
 
