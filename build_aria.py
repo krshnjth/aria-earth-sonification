@@ -82,29 +82,61 @@ HTML_CONTENT = r'''<!DOCTYPE html>
       cursor: grabbing !important;
     }
 
-    /* WebGL / Three.js Fallback Card */
+    /* WebGL / 2D Fallback Floating Notification Pill */
     #fb {
       position: fixed;
       left: 50%;
-      top: 50%;
-      transform: translate(-50%, -50%);
-      max-width: 440px;
-      padding: 24px;
-      text-align: center;
+      top: 68px;
+      transform: translateX(-50%);
+      max-width: 580px;
+      width: calc(100% - 32px);
+      padding: 10px 16px;
       display: none;
-      z-index: 2;
+      z-index: 25;
+      border: 1px solid rgba(255, 171, 64, 0.4);
+      background: rgba(6, 14, 28, 0.94);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.65), 0 0 20px rgba(255, 171, 64, 0.15);
+      animation: fadeInDown 0.3s ease;
+    }
+    #fb .fb-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+    }
+    #fb .fb-text {
+      text-align: left;
     }
     #fb h3 {
-      font-size: 14px;
-      color: #FF5252;
-      letter-spacing: 0.15em;
-      margin-bottom: 8px;
+      font-size: 11px;
+      color: #FFB74D;
+      letter-spacing: 0.12em;
+      margin-bottom: 2px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
     #fb p {
       font-size: 10px;
       color: var(--t2);
-      line-height: 1.6;
+      line-height: 1.4;
       text-transform: none;
+      margin: 0;
+    }
+    #fb .btn-fb-close {
+      font-size: 9.5px;
+      padding: 5px 10px;
+      border: 1px solid var(--bd);
+      border-radius: 4px;
+      color: var(--tx);
+      background: rgba(255, 255, 255, 0.08);
+      white-space: nowrap;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    #fb .btn-fb-close:hover {
+      background: rgba(255, 255, 255, 0.16);
+      border-color: rgba(255, 255, 255, 0.25);
     }
     
     .glass {
@@ -1661,11 +1693,16 @@ HTML_CONTENT = r'''<!DOCTYPE html>
   </style>
 </head>
 <body>
-  <!-- 3D WebGL Canvas -->
-  <canvas id="gl" aria-label="Interactive 3D Earth Globe"></canvas>
+  <!-- 3D WebGL / 2D Fallback Canvas -->
+  <canvas id="gl" aria-label="Interactive Planetary Observatory"></canvas>
   <div id="fb" class="glass">
-    <h3>3D OBSERVATORY OFFLINE</h3>
-    <p>WebGL / Three.js could not be initialized from the network or graphics hardware. All scientific data models, charts, and audio sonification remain fully operational.</p>
+    <div class="fb-row">
+      <div class="fb-text">
+        <h3 class="mono"><span style="color:#FFB74D">&#9679;</span> 2D PLANETARY OBSERVATORY ACTIVE</h3>
+        <p>3D WebGL acceleration is unavailable in this environment. The interactive 2D planetary map is active with full acoustic sonification, coordinates, and hotspots.</p>
+      </div>
+      <button id="btn-close-fb" class="btn-fb-close mono" aria-label="Dismiss 2D fallback alert">DISMISS</button>
+    </div>
   </div>
   <div id="hsb"></div>
 
@@ -2065,12 +2102,16 @@ HTML_CONTENT = r'''<!DOCTYPE html>
 
         <!-- Scientific Backend Connection -->
         <div style="margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.08)">
-          <div style="font-size:9px;color:var(--t2);letter-spacing:0.12em;font-weight:600;margin-bottom:8px">SCIENTIFIC BACKEND (FASTAPI / NASA / NOAA)</div>
-          <div style="display:flex;gap:8px;margin-bottom:8px">
-            <input id="inp-backend-url" type="text" value="http://127.0.0.1:8000" style="flex:1;background:#050B16;border:1px solid rgba(255,255,255,0.14);border-radius:4px;color:var(--tx);font-family:var(--fn-mono);font-size:9.5px;padding:6px 10px;" placeholder="http://127.0.0.1:8000" />
-            <button id="btn-sync-backend" class="btn-step" style="padding:4px 12px;font-size:9px;color:var(--ac);border-color:var(--ac)">SYNC</button>
+          <div style="font-size:9px;color:var(--t2);letter-spacing:0.12em;font-weight:600;margin-bottom:4px">SCIENTIFIC BACKEND (FASTAPI / NASA / NOAA)</div>
+          <div style="font-size:8px;color:var(--t3);line-height:1.5;margin-bottom:8px">
+            Default: Curated NASA/NOAA 1980–2025 Empirical Reference Engine. To stream live updates from a deployed FastAPI instance, enter the HTTPS endpoint below.
           </div>
-          <div id="backend-status-text" class="mono" style="font-size:8px;color:#80D8FF">STATUS: INITIALIZING...</div>
+          <div style="display:flex;gap:8px;margin-bottom:6px">
+            <input id="inp-backend-url" type="text" value="" style="flex:1;background:#050B16;border:1px solid rgba(255,255,255,0.14);border-radius:4px;color:var(--tx);font-family:var(--fn-mono);font-size:9.5px;padding:6px 10px;" placeholder="https://api.your-domain.com or http://127.0.0.1:8000" />
+            <button id="btn-sync-backend" class="btn-step" style="padding:4px 12px;font-size:9px;color:var(--ac);border-color:var(--ac)">TEST &amp; SYNC</button>
+          </div>
+          <div id="backend-status-text" class="mono" style="font-size:8px;color:#80D8FF">STATUS: STANDALONE NASA/NOAA REFERENCE ENGINE ACTIVE</div>
+          <div id="backend-mixed-warn" class="mono" style="font-size:8px;color:#FF5252;display:none;margin-top:4px">WARNING: Browsers block HTTP endpoints from HTTPS sites (Mixed Content). Use an HTTPS URL.</div>
         </div>
 
         <!-- Sonification Acoustic Mapping Legend -->
@@ -2092,8 +2133,18 @@ HTML_CONTENT = r'''<!DOCTYPE html>
     </div>
   </div>
 
-  <!-- Three.js Library -->
+  <!-- Three.js Library with Fallback CDNs -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script>
+    if (typeof THREE === 'undefined') {
+      document.write('<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"><\/script>');
+    }
+  </script>
+  <script>
+    if (typeof THREE === 'undefined') {
+      document.write('<script src="https://unpkg.com/three@0.128.0/build/three.min.js"><\/script>');
+    }
+  </script>
 
   <!-- External Textures bundle if available -->
   <script src="textures.js"></script>
@@ -2704,18 +2755,229 @@ HTML_CONTENT = r'''<!DOCTYPE html>
     let raycaster = null;
     let mouse = null;
 
+    let ctx2d = null;
+    let map2DImage = null;
+    let map2DLoaded = false;
+
+    function activate2DFallback() {
+      ok = false;
+      let canvas = $('#gl');
+      if (canvas) {
+        try {
+          ctx2d = canvas.getContext('2d');
+        } catch (e) {}
+        if (!ctx2d) {
+          const freshCanvas = document.createElement('canvas');
+          freshCanvas.id = 'gl';
+          freshCanvas.setAttribute('aria-label', 'Interactive 2D Earth Observatory Map');
+          freshCanvas.className = canvas.className;
+          canvas.parentNode.replaceChild(freshCanvas, canvas);
+          ctx2d = freshCanvas.getContext('2d');
+          bindCanvasInteraction(freshCanvas);
+        }
+      }
+      if (!map2DImage && typeof window.TX !== 'undefined' && window.TX.day) {
+        map2DImage = new Image();
+        map2DImage.onload = () => { map2DLoaded = true; };
+        map2DImage.src = window.TX.day;
+      }
+      const fb = $('#fb');
+      if (fb) fb.style.display = 'block';
+    }
+
+    function render2DFallbackMap(now, dt, normVal, c) {
+      const canvas = $('#gl');
+      if (!canvas) return;
+      if (!ctx2d) {
+        ctx2d = canvas.getContext('2d');
+        if (!ctx2d) return;
+      }
+
+      const W = window.innerWidth;
+      const H = window.innerHeight;
+      if (canvas.width !== W || canvas.height !== H) {
+        canvas.width = W;
+        canvas.height = H;
+      }
+
+      // 1. Deep space background
+      ctx2d.fillStyle = '#02040A';
+      ctx2d.fillRect(0, 0, W, H);
+
+      // Radial observatory glow behind map
+      const radGrad = ctx2d.createRadialGradient(W / 2, H / 2, 40, W / 2, H / 2, Math.max(W, H) * 0.65);
+      radGrad.addColorStop(0, '#061022');
+      radGrad.addColorStop(0.6, '#030712');
+      radGrad.addColorStop(1, '#010206');
+      ctx2d.fillStyle = radGrad;
+      ctx2d.fillRect(0, 0, W, H);
+
+      // Deep space subtle stars
+      ctx2d.fillStyle = 'rgba(200, 220, 255, 0.4)';
+      for (let i = 0; i < 40; i++) {
+        const sx = ((i * 137.5) % W);
+        const sy = ((i * 269.3 + now * 0.005) % H);
+        ctx2d.fillRect(sx, sy, 1.2, 1.2);
+      }
+
+      // 2. Centered equirectangular map box
+      const mapW = Math.min(W * 0.90, H * 1.80);
+      const mapH = mapW * 0.5;
+      const mapX = (W - mapW) / 2;
+      const mapY = (H - mapH) / 2;
+
+      // Draw map frame & shadow
+      ctx2d.save();
+      ctx2d.shadowColor = 'rgba(0, 0, 0, 0.85)';
+      ctx2d.shadowBlur = 30;
+      ctx2d.fillStyle = '#050D1A';
+      ctx2d.fillRect(mapX, mapY, mapW, mapH);
+      ctx2d.restore();
+
+      // Draw day texture image
+      if (map2DLoaded && map2DImage) {
+        ctx2d.drawImage(map2DImage, mapX, mapY, mapW, mapH);
+      } else {
+        // Fallback continent grid if image still decoding
+        ctx2d.fillStyle = '#08172E';
+        ctx2d.fillRect(mapX, mapY, mapW, mapH);
+      }
+
+      // Dynamic planetary anomaly color tint overlay
+      ctx2d.save();
+      ctx2d.fillStyle = c.hex;
+      ctx2d.globalAlpha = 0.22 * normVal;
+      ctx2d.fillRect(mapX, mapY, mapW, mapH);
+      ctx2d.restore();
+
+      // 3. Solar Day/Night Terminator wave
+      ctx2d.save();
+      ctx2d.beginPath();
+      ctx2d.moveTo(mapX, mapY + mapH);
+      const sunPhase = (now * 0.00008) % (Math.PI * 2);
+      for (let x = 0; x <= mapW; x += 8) {
+        const rad = (x / mapW) * Math.PI * 2 + sunPhase;
+        const waveY = mapY + (mapH / 2) + Math.sin(rad) * (mapH * 0.38);
+        ctx2d.lineTo(mapX + x, waveY);
+      }
+      ctx2d.lineTo(mapX + mapW, mapY + mapH);
+      ctx2d.closePath();
+      ctx2d.fillStyle = 'rgba(2, 4, 10, 0.52)';
+      ctx2d.fill();
+      ctx2d.restore();
+
+      // 4. Equirectangular coordinate grid
+      ctx2d.save();
+      ctx2d.strokeStyle = 'rgba(255, 255, 255, 0.10)';
+      ctx2d.lineWidth = 1;
+      ctx2d.setLineDash([4, 6]);
+
+      // Tropics (+23.5°, -23.5°)
+      const tropicN = mapY + ((90 - 23.5) / 180) * mapH;
+      const tropicS = mapY + ((90 - (-23.5)) / 180) * mapH;
+      ctx2d.beginPath();
+      ctx2d.moveTo(mapX, tropicN); ctx2d.lineTo(mapX + mapW, tropicN);
+      ctx2d.moveTo(mapX, tropicS); ctx2d.lineTo(mapX + mapW, tropicS);
+      ctx2d.stroke();
+
+      // Equator (Solid vibrant accent)
+      ctx2d.setLineDash([]);
+      ctx2d.strokeStyle = 'rgba(128, 216, 255, 0.35)';
+      ctx2d.lineWidth = 1.2;
+      const equatorY = mapY + mapH / 2;
+      ctx2d.beginPath();
+      ctx2d.moveTo(mapX, equatorY); ctx2d.lineTo(mapX + mapW, equatorY);
+      ctx2d.stroke();
+
+      // Prime Meridian & Longitude marks
+      ctx2d.setLineDash([3, 6]);
+      ctx2d.strokeStyle = 'rgba(255, 255, 255, 0.12)';
+      for (let lon = -120; lon <= 120; lon += 60) {
+        const lx = mapX + ((lon + 180) / 360) * mapW;
+        ctx2d.beginPath();
+        ctx2d.moveTo(lx, mapY); ctx2d.lineTo(lx, mapY + mapH);
+        ctx2d.stroke();
+      }
+
+      // Outer map border
+      ctx2d.setLineDash([]);
+      ctx2d.strokeStyle = 'rgba(255, 255, 255, 0.22)';
+      ctx2d.lineWidth = 1;
+      ctx2d.strokeRect(mapX, mapY, mapW, mapH);
+      ctx2d.restore();
+
+      // 5. Hotspot beacons & live DOM positioning
+      const allMarkers = [...HOTSPOTS];
+      if (st.region && st.region.isCustom && st.region.el) {
+        allMarkers.push(st.region);
+      }
+
+      allMarkers.forEach((h, idx) => {
+        const sx = mapX + ((h.lon + 180) / 360) * mapW;
+        const sy = mapY + ((90 - h.lat) / 180) * mapH;
+
+        if (h.el) {
+          h.el.style.transform = `translate(${sx}px, ${sy}px)`;
+          h.el.style.display = 'block';
+        }
+
+        // Draw animated concentric pulse on canvas
+        const isSelected = st.region && (st.region.id === h.id || st.region.n === h.n);
+        const pulse = (Math.sin(now * 0.004 + idx) + 1) * 0.5;
+        const radius = isSelected ? (8 + pulse * 8) : (4 + pulse * 4);
+
+        ctx2d.save();
+        ctx2d.beginPath();
+        ctx2d.arc(sx, sy, radius, 0, Math.PI * 2);
+        ctx2d.strokeStyle = isSelected ? '#00E676' : (h.cat && CATS[h.cat] ? CATS[h.cat].hex : c.hex);
+        ctx2d.lineWidth = isSelected ? 2 : 1.2;
+        ctx2d.shadowColor = ctx2d.strokeStyle;
+        ctx2d.shadowBlur = 8;
+        ctx2d.stroke();
+
+        ctx2d.beginPath();
+        ctx2d.arc(sx, sy, isSelected ? 3.5 : 2, 0, Math.PI * 2);
+        ctx2d.fillStyle = '#FFFFFF';
+        ctx2d.fill();
+        ctx2d.restore();
+      });
+
+      // 6. Observatory status watermark
+      ctx2d.save();
+      ctx2d.font = '10px "JetBrains Mono", monospace';
+      ctx2d.fillStyle = 'rgba(140, 160, 186, 0.7)';
+      ctx2d.fillText('● 2D PLANETARY OBSERVATORY · EQUIRECTANGULAR PROJECTION', mapX + 8, mapY - 8);
+      ctx2d.restore();
+    }
+
     function initWebGL() {
       if (typeof THREE === 'undefined') {
         console.warn('Three.js library is not available. Activating 2D fallback mode.');
-        ok = false;
-        $('#fb').style.display = 'block';
+        activate2DFallback();
         return;
       }
 
       try {
         const canvas = $('#gl');
-        R = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true, powerPreference: 'high-performance' });
+        R = new THREE.WebGLRenderer({
+          canvas,
+          alpha: true,
+          antialias: true,
+          powerPreference: 'high-performance',
+          failIfMajorPerformanceCaveat: false
+        });
         R.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+
+        canvas.addEventListener('webglcontextlost', e => {
+          e.preventDefault();
+          console.warn('WebGL context lost. Activating 2D fallback map.');
+          activate2DFallback();
+        }, false);
+
+        canvas.addEventListener('webglcontextrestored', () => {
+          console.info('WebGL context restored. Re-initializing 3D observatory.');
+          initWebGL();
+        }, false);
 
         scene = new THREE.Scene();
         cam = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 100);
@@ -2739,7 +3001,11 @@ HTML_CONTENT = r'''<!DOCTYPE html>
         `;
 
         const fs = `
+          #ifdef GL_FRAGMENT_PRECISION_HIGH
           precision highp float;
+          #else
+          precision mediump float;
+          #endif
           varying vec3 vP, vN;
           varying vec2 vUv;
           uniform vec3 uSun, uTint;
@@ -2876,12 +3142,12 @@ HTML_CONTENT = r'''<!DOCTYPE html>
         planet.add(ring);
 
         ok = true;
-        $('#fb').style.display = 'none';
+        const fb = $('#fb');
+        if (fb) fb.style.display = 'none';
 
       } catch (err) {
-        console.error('WebGL initialization error:', err);
-        ok = false;
-        $('#fb').style.display = 'block';
+        console.warn('WebGL initialization failed, activating 2D fallback:', err);
+        activate2DFallback();
       }
     }
 
@@ -2932,7 +3198,28 @@ HTML_CONTENT = r'''<!DOCTYPE html>
     }
 
     function getEarthIntersect(clientX, clientY) {
-      if (!ok || !earth || !cam || !R || !raycaster || !mouse) return null;
+      if (!ok) {
+        const canvas = $('#gl');
+        if (!canvas) return null;
+        const rect = canvas.getBoundingClientRect();
+        const mapW = Math.min(rect.width * 0.90, rect.height * 1.80);
+        const mapH = mapW * 0.5;
+        const mapX = (rect.width - mapW) / 2;
+        const mapY = (rect.height - mapH) / 2;
+        const px = clientX - rect.left;
+        const py = clientY - rect.top;
+
+        if (px >= mapX && px <= mapX + mapW && py >= mapY && py <= mapY + mapH) {
+          const u = (px - mapX) / mapW;
+          const v = (py - mapY) / mapH;
+          const lon = clamp((u * 360) - 180, -180, 180);
+          const lat = clamp(90 - (v * 180), -90, 90);
+          return { hit: null, lat, lon };
+        }
+        return null;
+      }
+
+      if (!earth || !cam || !R || !raycaster || !mouse) return null;
       const rect = R.domElement.getBoundingClientRect();
       mouse.x = ((clientX - rect.left) / rect.width) * 2 - 1;
       mouse.y = -((clientY - rect.top) / rect.height) * 2 + 1;
@@ -3040,9 +3327,8 @@ HTML_CONTENT = r'''<!DOCTYPE html>
     }
     window.addEventListener('resize', onResize);
 
-    function initGlobeInteraction() {
-      const canvas = $('#gl');
-      
+    function bindCanvasInteraction(canvas) {
+      if (!canvas) return;
       canvas.addEventListener('pointerdown', e => {
         if (e.target !== canvas) return;
         pointerStartedOnGlobe = true;
@@ -3056,6 +3342,23 @@ HTML_CONTENT = r'''<!DOCTYPE html>
         }
         canvas.classList.add('grabbing');
       });
+
+      canvas.addEventListener('pointerleave', () => {
+        if (st.scanMode) {
+          $('#scanner-reticle').style.display = 'none';
+          $('#scanner-pill').style.display = 'none';
+        }
+      });
+
+      canvas.addEventListener('wheel', e => {
+        zoom = clamp(zoom * (1 + e.deltaY * 0.001), 0.65, 1.8);
+        onResize();
+      }, { passive: true });
+    }
+
+    function initGlobeInteraction() {
+      const canvas = $('#gl');
+      bindCanvasInteraction(canvas);
 
       window.addEventListener('pointermove', e => {
         if (st.scanMode) {
@@ -3076,9 +3379,10 @@ HTML_CONTENT = r'''<!DOCTYPE html>
         const wasGlobe = pointerStartedOnGlobe;
         pointerStartedOnGlobe = false;
         drag = false;
-        canvas.classList.remove('grabbing');
-        if (canvas.releasePointerCapture && canvas.hasPointerCapture && canvas.hasPointerCapture(e.pointerId)) {
-          try { canvas.releasePointerCapture(e.pointerId); } catch(err) {}
+        const c = $('#gl');
+        if (c) c.classList.remove('grabbing');
+        if (c && c.releasePointerCapture && c.hasPointerCapture && c.hasPointerCapture(e.pointerId)) {
+          try { c.releasePointerCapture(e.pointerId); } catch(err) {}
         }
 
         const hitUI = e.target.closest && (
@@ -3090,7 +3394,7 @@ HTML_CONTENT = r'''<!DOCTYPE html>
           e.target.closest('#region-banner')
         );
 
-        if (wasGlobe && movedDistance < 7 && ok && !hitUI) {
+        if (wasGlobe && movedDistance < 7 && !hitUI) {
           handleEarthClick(e.clientX, e.clientY);
         }
       });
@@ -3098,20 +3402,9 @@ HTML_CONTENT = r'''<!DOCTYPE html>
       window.addEventListener('pointercancel', e => {
         pointerStartedOnGlobe = false;
         drag = false;
-        canvas.classList.remove('grabbing');
+        const c = $('#gl');
+        if (c) c.classList.remove('grabbing');
       });
-
-      canvas.addEventListener('pointerleave', () => {
-        if (st.scanMode) {
-          $('#scanner-reticle').style.display = 'none';
-          $('#scanner-pill').style.display = 'none';
-        }
-      });
-
-      canvas.addEventListener('wheel', e => {
-        zoom = clamp(zoom * (1 + e.deltaY * 0.001), 0.65, 1.8);
-        onResize();
-      }, { passive: true });
 
       $('#zi').onclick = () => { zoom = clamp(zoom * 0.85, 0.65, 1.8); onResize(); };
       $('#zo').onclick = () => { zoom = clamp(zoom * 1.18, 0.65, 1.8); onResize(); };
@@ -3943,8 +4236,41 @@ HTML_CONTENT = r'''<!DOCTYPE html>
     $('#btn-zen').onclick = toggleZenMode;
     $('#zen-restore-btn').onclick = toggleZenMode;
     window.addEventListener('keydown', e => {
-      if (e.key === 'z' || e.key === 'Z') toggleZenMode();
+      if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA')) {
+        return;
+      }
+      if (e.key === 'z' || e.key === 'Z') {
+        toggleZenMode();
+      } else if (e.code === 'Space') {
+        e.preventDefault();
+        setPlayState(!st.play);
+      } else if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        setYear(Math.min(2025, st.year + 1));
+      } else if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        setYear(Math.max(1980, st.year - 1));
+      } else if (e.key === 'Escape') {
+        $('#settings-modal').classList.remove('open');
+        $('#region-drawer').classList.remove('open');
+        if (document.body.classList.contains('zen-mode')) toggleZenMode();
+      }
     });
+
+    const prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReducedMotion) {
+      st.rotSpeed = 'off';
+      const selRot = $('#sel-rot');
+      if (selRot) selRot.value = 'off';
+    }
+
+    const btnCloseFb = $('#btn-close-fb');
+    if (btnCloseFb) {
+      btnCloseFb.onclick = () => {
+        const fb = $('#fb');
+        if (fb) fb.style.display = 'none';
+      };
+    }
 
     $('#btn-settings').onclick = () => $('#settings-modal').classList.add('open');
     $('#btn-close-settings').onclick = () => $('#settings-modal').classList.remove('open');
@@ -4070,8 +4396,13 @@ HTML_CONTENT = r'''<!DOCTYPE html>
         waveCtx.stroke();
       }
 
-      // Three.js Render Updates
-      if (!ok || !earth || !cam || !R || !scene) return;
+      // 3D WebGL or 2D Interactive Fallback Rendering
+      if (!ok) {
+        render2DFallbackMap(now, dt, normVal, c);
+        return;
+      }
+
+      if (!earth || !cam || !R || !scene) return;
 
       if (U && U.uTime) {
         U.uTime.value = now / 1000;
@@ -4116,26 +4447,67 @@ HTML_CONTENT = r'''<!DOCTYPE html>
     }
 
     // --- Central ARIA Frontend API Client ---
+    const isLocalDev = Boolean(
+      typeof window !== 'undefined' && (
+        window.location.hostname === 'localhost' ||
+        window.location.hostname === '127.0.0.1' ||
+        window.location.protocol === 'file:' ||
+        window.location.hostname === ''
+      )
+    );
+
     const AriaApi = {
-      baseUrl: (typeof localStorage !== 'undefined' && localStorage.getItem('aria_backend_url')) || 'http://127.0.0.1:8000',
+      baseUrl: (typeof localStorage !== 'undefined' && localStorage.getItem('aria_backend_url')) || (isLocalDev ? 'http://127.0.0.1:8000' : ''),
       isLive: false,
       lastSync: null,
 
       async init() {
         const inp = $('#inp-backend-url');
         if (inp) inp.value = this.baseUrl;
+
+        if (!this.baseUrl) {
+          this.setStandaloneMode();
+          return true;
+        }
         return await this.syncWithBackend();
       },
 
+      setStandaloneMode() {
+        this.isLive = false;
+        const badge = $('#backend-badge');
+        const statusText = $('#backend-status-text');
+        const warnEl = $('#backend-mixed-warn');
+        if (warnEl) warnEl.style.display = 'none';
+        if (badge) {
+          badge.textContent = '● NASA/NOAA REFERENCE ENGINE';
+          badge.style.color = '#80D8FF';
+          badge.style.borderColor = 'rgba(128, 216, 255, 0.4)';
+        }
+        if (statusText) {
+          statusText.textContent = 'STATUS: STANDALONE EMPIRICAL RECORD (1980–2025 NASA & NOAA REFERENCE ENGINE)';
+          statusText.style.color = '#80D8FF';
+        }
+      },
+
       setBaseUrl(url) {
-        if (!url) return;
-        this.baseUrl = url.trim().replace(/\/+$/, '');
+        if (!url || !url.trim()) {
+          this.baseUrl = '';
+          try {
+            if (typeof localStorage !== 'undefined') localStorage.removeItem('aria_backend_url');
+          } catch(e) {}
+          this.setStandaloneMode();
+          return;
+        }
+
+        const trimmed = url.trim().replace(/\/+$/, '');
+        this.baseUrl = trimmed;
         try {
           if (typeof localStorage !== 'undefined') localStorage.setItem('aria_backend_url', this.baseUrl);
         } catch(e) {}
       },
 
       async checkHealth() {
+        if (!this.baseUrl) return false;
         try {
           const controller = new AbortController();
           const timer = setTimeout(() => controller.abort(), 2000);
@@ -4152,19 +4524,46 @@ HTML_CONTENT = r'''<!DOCTYPE html>
       async syncWithBackend() {
         const badge = $('#backend-badge');
         const statusText = $('#backend-status-text');
+        const warnEl = $('#backend-mixed-warn');
+
+        if (!this.baseUrl) {
+          this.setStandaloneMode();
+          return true;
+        }
+
+        // Mixed Content Check
+        if (typeof window !== 'undefined' && window.location.protocol === 'https:' && this.baseUrl.startsWith('http://')) {
+          if (warnEl) warnEl.style.display = 'block';
+          if (statusText) {
+            statusText.textContent = 'BLOCKED: Cannot request insecure HTTP from HTTPS page (Mixed Content).';
+            statusText.style.color = '#FF5252';
+          }
+          if (badge) {
+            badge.textContent = '● MIXED CONTENT BLOCKED';
+            badge.style.color = '#FF5252';
+            badge.style.borderColor = '#FF5252';
+          }
+          return false;
+        }
+        if (warnEl) warnEl.style.display = 'none';
+
         if (statusText) statusText.textContent = 'STATUS: CONNECTING TO ' + this.baseUrl + '...';
-        if (badge) badge.textContent = 'BACKEND: CONNECTING';
+        if (badge) {
+          badge.textContent = '● BACKEND: CONNECTING';
+          badge.style.color = '#FFB74D';
+          badge.style.borderColor = 'rgba(255, 183, 77, 0.4)';
+        }
 
         const healthy = await this.checkHealth();
         if (!healthy) {
           this.isLive = false;
           if (badge) {
-            badge.textContent = 'BACKEND: OFFLINE (REF)';
+            badge.textContent = '● NASA/NOAA REFERENCE ENGINE';
             badge.style.color = '#80D8FF';
-            badge.style.borderColor = 'rgba(128,216,255,0.3)';
+            badge.style.borderColor = 'rgba(128, 216, 255, 0.4)';
           }
           if (statusText) {
-            statusText.textContent = 'STATUS: OFFLINE (FALLBACK TO HISTORICAL REFERENCE)';
+            statusText.textContent = `STATUS: UNREACHABLE (${this.baseUrl}) — USING CURATED NASA/NOAA REFERENCE ENGINE`;
             statusText.style.color = '#80D8FF';
           }
           return false;

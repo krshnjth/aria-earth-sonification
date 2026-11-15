@@ -27,9 +27,18 @@ class Settings(BaseSettings):
         "http://127.0.0.1:5500",
         "http://localhost:8080",
         "http://127.0.0.1:8080",
+        "https://krshnjth.github.io",
         "null",  # allow file:// origin in local browser testing
         "*"
     ]
+
+    @field_validator("CORS_ORIGINS", mode="before")
+    def assemble_cors_origins(cls, v: Union[str, List[str]]) -> List[str]:
+        if isinstance(v, str) and not v.startswith("["):
+            return [i.strip() for i in v.split(",") if i.strip()]
+        elif isinstance(v, (list, str)):
+            return v
+        raise ValueError(v)
     
     # HTTP Client Configuration
     HTTP_TIMEOUT: float = 15.0

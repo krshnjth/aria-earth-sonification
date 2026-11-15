@@ -25,3 +25,7 @@ backend/data/cache/
 .idea/
 .DS_Store
 Thumbs.db
+
+# Test profiles & caches
+.chrome-test-profile/
+.pytest_cache/
